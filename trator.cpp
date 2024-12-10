@@ -439,6 +439,24 @@ void menu(int opcao)
     }
     atualizaIluminacao();
 }
+void desenhaCravo(float altura, float raio, int resolucao)
+{
+    GLUquadric* quadric = gluNewQuadric();
+    gluQuadricNormals(quadric, GLU_SMOOTH);
+    
+    // Desenhar o cilindro centralizado
+    gluCylinder(quadric, raio, raio * 0.8f, altura, resolucao, 1);
+    
+    // Desenhar as tampas do cravo para fechar as extremidades
+    gluDisk(quadric, 0.0f, raio * 0.8f, resolucao, 1); // Base
+    glPushMatrix();
+        glTranslatef(0.0f, 0.0f, altura);
+        gluDisk(quadric, 0.0f, raio * 0.8f, resolucao, 1); // Topo
+    glPopMatrix();
+    
+    gluDeleteQuadric(quadric);
+}
+
 
 void desenhaRoda(float raio, float largura)
 {
@@ -470,6 +488,29 @@ void desenhaRoda(float raio, float largura)
 
     glDisable(GL_TEXTURE_2D); // Desativar textura do pneu
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    // Parâmetros dos cravos
+    const int numCravos = 14;           // Número de cravos ao redor do pneu
+    const float alturaCravo = largura;    // Altura (largura) de cada cravo
+    const float raioCravo = 0.045f;     // Raio da base do cravo
+    const int resolucaoCravo = 32;     // Resolução dos cravos para suavidade
+
+    // Adicionar Cravos ao Pneu
+    glColor3f(0.08f, 0.08f, 0.08f); // Cor dos cravos (cinza escuro)
+
+    for(int i = 0; i < numCravos; i++)
+    {
+        float anguloCravo = i * (2.0f * M_PI / numCravos);
+        float xCravo = cos(anguloCravo) * raio;
+        float yCravo = sin(anguloCravo) * raio;
+
+        glPushMatrix();
+            glTranslatef(xCravo, yCravo, -alturaCravo / 2.0f); // Posicionar o cravo na circunferência e centralizado ao longo de Z
+            desenhaCravo(alturaCravo, raioCravo, resolucaoCravo);
+        glPopMatrix();
+    }
+
+    
 
     // Tampões 
 
