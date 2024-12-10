@@ -16,7 +16,7 @@ GLuint texturaTijolo;
 GLuint texturaCorpoTrator;
 GLuint texturaTampao;
 
-// Função para carregar textura (igual a sua, mas chamada apenas uma vez)
+// Função para carregar textura 
 void carregarTextura(const char *arquivo, GLuint &texturaID) {
     int largura, altura, canais;
     unsigned char *dados = stbi_load(arquivo, &largura, &altura, &canais, 0);
@@ -289,28 +289,6 @@ void createSimpleTexture(int width, int height, unsigned char* data, unsigned ch
 }
 
 
-
-
-
-
-void createBrickTexture(int width, int height, unsigned char* data) {
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int brickX = x % 20;
-            int brickY = y % 10;
-            bool isMortar = (brickX < 1) || (brickY < 1);
-            
-            unsigned char r = isMortar ? 200 : (180 + rand() % 50);
-            unsigned char g = isMortar ? 200 : (100 + rand() % 50);
-            unsigned char b = isMortar ? 200 : (80 + rand() % 30);
-            
-            data[(y * width + x) * 3 + 0] = r;
-            data[(y * width + x) * 3 + 1] = g;
-            data[(y * width + x) * 3 + 2] = b;
-        }
-    }
-}
-
 // Função de inicialização
 void inicializa() {
     glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
@@ -342,7 +320,8 @@ void inicializa() {
 
     carregarTextura("images/texturaTrator.jpg", texturaCorpoTrator);
     carregarTextura("images/roda2.jpg", texturaRoda); 
-    carregarTextura("images/pneu.jpg", texturaTampao);   
+    carregarTextura("images/pneu.jpg", texturaTampao);  
+    carregarTextura("images/tijolos3.jpg", texturaTijolo);   
   
      
 
@@ -371,16 +350,7 @@ void inicializa() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    // Tijolo
-
-    createBrickTexture(texSize, texSize, textureData);
-    glGenTextures(1, &texturaTijolo);
-    glBindTexture(GL_TEXTURE_2D, texturaTijolo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texSize, texSize, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
 }
 
 void atualizaIluminacao()
@@ -410,26 +380,26 @@ void menu(int opcao)
     case 1: // Aumentar intensidade da luz difusa
         for (int i = 0; i < 3; i++)
         {
-            lightDiffuse[i] = std::min(lightDiffuse[i] + 0.1f, 1.0f);
+            lightDiffuse[i] = std::min(lightDiffuse[i] + 0.3f, 1.0f);
         }
         break;
     case 2: // Diminuir intensidade da luz difusa
         for (int i = 0; i < 3; i++)
         {
-            lightDiffuse[i] = std::max(lightDiffuse[i] - 0.1f, 0.0f);
+            lightDiffuse[i] = std::max(lightDiffuse[i] - 0.3f, 0.0f);
         }
         break;
     case 3: // Mover luz para a direita
-        lightPosition[0] += 2.0f;
+        lightPosition[0] += 10.0f;
         break;
     case 4: // Mover luz para a esquerda
-        lightPosition[0] -= 2.0f;
+        lightPosition[0] -= 10.0f;
         break;
     case 5: // Mover luz para cima
-        lightPosition[1] += 2.0f;
+        lightPosition[1] += 10.0f;
         break;
     case 6: // Mover luz para baixo
-        lightPosition[1] -= 2.0f;
+        lightPosition[1] -= 10.0f;
         break;
     case 7: // Resetar o trator
         resetarTrator();
