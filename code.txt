@@ -1,14 +1,4 @@
-g++ -Wall -Iinclude -g main.cpp -o main.exe -Llib -lopengl32 -lglu32 -lfreeglut
-
-g++ -Wall -Iinclude -g atividade.cpp -o atividade.exe -Llib -lopengl32 -lglu32 -lfreeglut
-g++ -Wall -Iinclude -g aula08.cpp -o aula08.exe -Llib -lopengl32 -lglu32 -lfreeglut
-g++ -Wall -Iinclude -g projeto.cpp -o projeto.exe -Llib -lopengl32 -lglu32 -lfreeglut
-g++ -Wall -Iinclude -g sistSolar.cpp -o sistSolar.exe -Llib -lopengl32 -lglu32 -lfreeglut
-g++ -Wall -Iinclude -g pratica2.cpp -o pratica2.exe -Llib -lopengl32 -lglu32 -lfreeglut
-g++ -Wall -Iinclude -g ProjetoFinal.cpp -o ProjetoFinal.exe -Llib -lopengl32 -lglu32 -lfreeglut
-
-g++ -Wall -Iinclude -g teste.cpp -o teste.exe -Llib -lopengl32 -lglu32 -lfreeglut
-
+## Codigo para gerar o arquivo executável Trator.exe
 
 
 g++ -Wall -Iinclude -g trator.cpp -o Trator.exe -Llib -lopengl32 -lglu32 -lfreeglut

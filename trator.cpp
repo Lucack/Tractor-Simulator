@@ -314,14 +314,11 @@ void inicializa() {
     glEnable(GL_TEXTURE_2D);
 
     // Carregamento de todas as texturas UMA ÚNICA VEZ
-    stbi_set_flip_vertically_on_load(true);
     carregarTextura("images/pneu.jpg", texturaPneu);
-    stbi_set_flip_vertically_on_load(false);
-
     carregarTextura("images/texturaTrator.jpg", texturaCorpoTrator);
     carregarTextura("images/roda2.jpg", texturaRoda); 
     carregarTextura("images/pneu.jpg", texturaTampao);  
-    carregarTextura("images/tijolos3.jpg", texturaTijolo);   
+    carregarTextura("images/tijolos.jpg", texturaTijolo);   
   
      
 

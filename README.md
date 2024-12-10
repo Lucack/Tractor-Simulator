@@ -1,6 +1,3 @@
-# Computacao-Grafica
-Este repositório contém os projetos e exercícios desenvolvidos durante a disciplina de Computação Gráfica
-
 # Tractor Simulator
 
 Welcome to the **Tractor Simulator**, an interactive OpenGL-based simulation that allows you to control and explore a detailed 3D tractor model. Navigate through different camera perspectives, manipulate the tractor's arms and bucket, and observe realistic lighting and movement dynamics.
