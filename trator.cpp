@@ -6,12 +6,37 @@
 #include <stb_image.h>
 #include <ctime>
 
+
+// Variáveis globais para as texturas
+GLuint texturaPneu;
 GLuint texturaRoda;
 GLuint texturaChao;
-
 GLuint texturaFerro;
-GLuint texturaMuro;
 GLuint texturaTijolo;
+GLuint texturaCorpoTrator;
+GLuint texturaTampao;
+
+// Função para carregar textura (igual a sua, mas chamada apenas uma vez)
+void carregarTextura(const char *arquivo, GLuint &texturaID) {
+    int largura, altura, canais;
+    unsigned char *dados = stbi_load(arquivo, &largura, &altura, &canais, 0);
+    if (dados) {
+        glGenTextures(1, &texturaID);
+        glBindTexture(GL_TEXTURE_2D, texturaID);
+        
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, largura, altura, 0, GL_RGB, GL_UNSIGNED_BYTE, dados);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, largura, altura, GL_RGB, GL_UNSIGNED_BYTE, dados);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MODULATE); // Evita replicação
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MODULATE); // Evita replicação
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // Filtro de minificação
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Filtro de magnificação
+        
+        stbi_image_free(dados);
+    } else {
+        printf("Erro ao carregar a textura: %s\n", arquivo);
+    }
+}
 
 bool farolLigado = false;           // Estado do farol
 float anguloRodasDianteiras = 0.0f; // Ângulo das rodas dianteiras
@@ -221,33 +246,6 @@ void createSandTexture(int width, int height, unsigned char* data) {
 }
 }
 
-void carregarTextura(const char *arquivo, GLuint &texturaID)
-{
-    int largura, altura, canais;
-    unsigned char *dados = stbi_load(arquivo, &largura, &altura, &canais, 0);
-    if (dados)
-    {
-
-        glGenTextures(1, &texturaID);
-        glBindTexture(GL_TEXTURE_2D, texturaID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, largura, altura, 0, GL_RGB, GL_UNSIGNED_BYTE, dados);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, largura, altura, GL_RGB, GL_UNSIGNED_BYTE, dados);
-
-        // Parâmetros de filtro da textura
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MODULATE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MODULATE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        //GL_REPEAT OU GL_MODULATE
-        stbi_image_free(dados);
-    }
-    else
-    {
-        printf("Erro ao carregar a textura: %s\n", arquivo);
-    }
-}
-
 void atualizaFarol()
 {
     // Posição e direção do farol direito
@@ -313,12 +311,17 @@ void createBrickTexture(int width, int height, unsigned char* data) {
     }
 }
 
-
+// Função de inicialização
 void inicializa() {
-    glClearColor(0.529f, 0.808f, 0.922f, 1.0f); // Fundo azul céu
+    glClearColor(0.529f, 0.808f, 0.922f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+
 
     configurarIluminacaoSetas();
 
@@ -331,13 +334,22 @@ void inicializa() {
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
     glEnable(GL_TEXTURE_2D);
-    carregarTextura("images/texturaPneu.png", texturaRoda);
 
-    // Criar e carregar textura de areia
+    // Carregamento de todas as texturas UMA ÚNICA VEZ
+    stbi_set_flip_vertically_on_load(true);
+    carregarTextura("images/pneu.jpg", texturaPneu);
+    stbi_set_flip_vertically_on_load(false);
+
+    carregarTextura("images/texturaTrator.jpg", texturaCorpoTrator);
+    carregarTextura("images/roda2.jpg", texturaRoda); 
+    carregarTextura("images/pneu.jpg", texturaTampao);   
+  
+     
+
+    // Criar textura de areia para o chão
     const int sandTexSize = 256;
     unsigned char sandTextureData[sandTexSize * sandTexSize * 3];
     createSandTexture(sandTexSize, sandTexSize, sandTextureData);
-
     glGenTextures(1, &texturaChao);
     glBindTexture(GL_TEXTURE_2D, texturaChao);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sandTexSize, sandTexSize, 0, GL_RGB, GL_UNSIGNED_BYTE, sandTextureData);
@@ -346,20 +358,10 @@ void inicializa() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    
-const int texSize = 256;
+    const int texSize = 256;
     unsigned char textureData[texSize * texSize * 3];
-    
-    createSandTexture(texSize, texSize, textureData);
-    glGenTextures(1, &texturaChao);
-    glBindTexture(GL_TEXTURE_2D, texturaChao);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texSize, texSize, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    // Create iron texture
+    // Ferro
     createSimpleTexture(texSize, texSize, textureData, 100, 100, 100);
     glGenTextures(1, &texturaFerro);
     glBindTexture(GL_TEXTURE_2D, texturaFerro);
@@ -369,7 +371,8 @@ const int texSize = 256;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    // Create brick texture
+    // Tijolo
+
     createBrickTexture(texSize, texSize, textureData);
     glGenTextures(1, &texturaTijolo);
     glBindTexture(GL_TEXTURE_2D, texturaTijolo);
@@ -378,8 +381,6 @@ const int texSize = 256;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-
 }
 
 void atualizaIluminacao()
@@ -447,11 +448,10 @@ void desenhaRoda(float raio, float largura)
     int numLados = 32;
     float anguloIncremento = 2.0f * M_PI / numLados;
 
-    // Ativar textura
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
+    // Ativar e configurar a textura do pneu
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texturaRoda);
+    glBindTexture(GL_TEXTURE_2D, texturaPneu);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     glBegin(GL_QUAD_STRIP);
     for (int i = 0; i <= numLados; i++)
@@ -468,56 +468,96 @@ void desenhaRoda(float raio, float largura)
     }
     glEnd();
 
-    glDisable(GL_TEXTURE_2D); // Desativar textura após uso
+    glDisable(GL_TEXTURE_2D); // Desativar textura do pneu
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-    // Tampões (sem textura)
-    glColor3f(0.1f, 0.1f, 0.1f);
-    // glColor3f(1.0f, 1.0f, 1.0f);
+    // Tampões 
 
+    // Ativar e configurar a texturaTampao
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texturaTampao);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    glColor3f(0.1f, 0.1f, 0.1f); // Preto
+
+    // Tampão Frente com Textura
     glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.0f, 0.0f, largura / 2.0f);
-    for (int i = 0; i <= numLados; i++)
-    {
-        float angulo = i * anguloIncremento;
-        glVertex3f(cos(angulo) * raio, sin(angulo) * raio, largura / 2.0f);
-    }
+        glNormal3f(0.0f, 0.0f, 1.0f);
+        glTexCoord2f(0.5f, 0.5f); // Centro da textura
+        glVertex3f(0.0f, 0.0f, largura / 2.0f);
+        for (int i = 0; i <= numLados; i++)
+        {
+            float angulo = i * anguloIncremento;
+            float x = cos(angulo) * raio;
+            float y = sin(angulo) * raio;
+
+            // Mapeamento de coordenadas de textura
+            glTexCoord2f((x / raio + 1.0f) / 2.0f, (y / raio + 1.0f) / 2.0f);
+            glVertex3f(x, y, largura / 2.0f);
+        }
     glEnd();
 
+    // Tampão Traseiro com Textura
     glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.0f, 0.0f, -largura / 2.0f);
-    for (int i = 0; i <= numLados; i++)
-    {
-        float angulo = i * anguloIncremento;
-        glVertex3f(cos(angulo) * raio, sin(angulo) * raio, -largura / 2.0f);
-    }
+        glNormal3f(0.0f, 0.0f, -1.0f);
+        glTexCoord2f(0.5f, 0.5f); // Centro da textura
+        glVertex3f(0.0f, 0.0f, -largura / 2.0f);
+        for (int i = 0; i <= numLados; i++)
+        {
+            float angulo = i * anguloIncremento;
+            float x = cos(angulo) * raio;
+            float y = sin(angulo) * raio;
+
+            // Mapeamento de coordenadas de textura
+            glTexCoord2f((x / raio + 1.0f) / 2.0f, (y / raio + 1.0f) / 2.0f);
+            glVertex3f(x, y, -largura / 2.0f);
+        }
     glEnd();
 
-    // Parte central (encaixe amarelo)
+    glDisable(GL_TEXTURE_2D); // Desativar texturaTampao após uso
+
+    // Parte central (encaixe amarelo) - Aplicar texturaRoda
     float raioEncaixe = raio * 0.5f;
-    glColor3f(0.968f, 0.58f, 0.11f); // Cor amarelo alaranjado
+
+    // Definir cor branca com alpha completo para não interferir na textura
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // Branco com alpha 1.0
+
+    // Ativar e configurar a texturaRoda
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texturaRoda);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     // Frente do encaixe
     glBegin(GL_TRIANGLE_FAN);
-    glNormal3f(0.0f, 0.0f, 1.0f);
-    glVertex3f(0.0f, 0.0f, largura / 2.0f + 0.01f);
-    for (int i = 0; i <= numLados; i++)
-    {
-        float angulo = i * anguloIncremento;
-        glVertex3f(cos(angulo) * raioEncaixe, sin(angulo) * raioEncaixe, largura / 2.0f + 0.01f);
-    }
+        glNormal3f(0.0f, 0.0f, 1.0f);
+        glTexCoord2f(0.5f, 0.5f); // Centro da textura
+        glVertex3f(0.0f, 0.0f, largura / 2.0f + 0.01f); // Pequeno deslocamento para evitar z-fighting
+        for (int i = 0; i <= numLados; i++)
+        {
+            float angulo = i * anguloIncremento;
+            float x = cos(angulo) * raioEncaixe;
+            float y = sin(angulo) * raioEncaixe;
+            glTexCoord2f((x / raioEncaixe + 1.0f) / 2.0f, (y / raioEncaixe + 1.0f) / 2.0f); // Mapeamento de coordenadas de textura
+            glVertex3f(x, y, largura / 2.0f + 0.01f);
+        }
     glEnd();
 
     // Traseira do encaixe
     glBegin(GL_TRIANGLE_FAN);
-    glNormal3f(0.0f, 0.0f, -1.0f);
-    glVertex3f(0.0f, 0.0f, -largura / 2.0f - 0.01f);
-    for (int i = 0; i <= numLados; i++)
-    {
-        float angulo = i * anguloIncremento;
-        glVertex3f(cos(angulo) * raioEncaixe, sin(angulo) * raioEncaixe, -largura / 2.0f - 0.01f);
-    }
+        glNormal3f(0.0f, 0.0f, -1.0f);
+        glTexCoord2f(0.5f, 0.5f); // Centro da textura
+        glVertex3f(0.0f, 0.0f, -largura / 2.0f - 0.01f); // Pequeno deslocamento para evitar z-fighting
+        for (int i = 0; i <= numLados; i++)
+        {
+            float angulo = i * anguloIncremento;
+            float x = cos(angulo) * raioEncaixe;
+            float y = sin(angulo) * raioEncaixe;
+            glTexCoord2f((x / raioEncaixe + 1.0f) / 2.0f, (y / raioEncaixe + 1.0f) / 2.0f); // Mapeamento de coordenadas de textura
+            glVertex3f(x, y, -largura / 2.0f - 0.01f);
+        }
     glEnd();
+
+    glDisable(GL_TEXTURE_2D); // Desativar texturaRoda após uso
 
     glPopMatrix();
 }
@@ -525,10 +565,10 @@ void desenhaRoda(float raio, float largura)
 void desenhaCabine(GLuint texturaID)
 {
     // Dimensões da cabine
-    float larguraTeto = 1.5f;     // Largura do teto
-    float profundidadeTeto = 1.5f; // Profundidade do teto
-    float alturaCabine = 1.9f;     // Altura da cabine a partir do topo do trator
-    float espessuraHaste = 0.2f;   // Espessura das hastes
+    float larguraTeto = 1.5f;       // Largura do teto
+    float profundidadeTeto = 1.5f;  // Profundidade do teto
+    float alturaCabine = 1.9f;      // Altura da cabine a partir do topo do trator
+    float espessuraHaste = 0.2f;    // Espessura das hastes
 
     // Hastes (quatro cantos da cabine)
     glColor3f(0.1f, 0.1f, 0.1f); // Preto
@@ -548,11 +588,10 @@ void desenhaCabine(GLuint texturaID)
     glBindTexture(GL_TEXTURE_2D, texturaID);  // Associar a textura carregada
 
     // Teto da cabine
-    //glColor3f(1.0f, 0.5f, 0.0f); // Amarelo alaranjado
     glColor3f(1.0f, 1.0f, 1.0f); 
     glPushMatrix();
     glTranslatef(0.0f, alturaCabine, 0.0f);
-    glScalef(larguraTeto - espessuraHaste , espessuraHaste, profundidadeTeto - espessuraHaste);
+    glScalef(larguraTeto - espessuraHaste, espessuraHaste, profundidadeTeto - espessuraHaste);
 
     // Desenha as faces do teto manualmente com coordenadas de textura
     glBegin(GL_QUADS);
@@ -604,7 +643,46 @@ void desenhaCabine(GLuint texturaID)
     glDisable(GL_TEXTURE_2D); // Desabilitar texturização
 
     glPopMatrix();
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // **Adicionar Vidros Transparentes nas Faces Laterais (Direita e Esquerda)**
+    // Definir a cor azul clara com transparência
+    glColor4f(0.529f, 0.808f, 0.980f, 0.35f); // Cor Azul Claro com alpha 0.5
+
+    // Face Lateral Direita (Eixo Z Positivo)
+    glPushMatrix();
+    glTranslatef(larguraTeto / 2 + 0.01f, 0.0f, 0.0f); // Pequeno deslocamento para evitar z-fighting
+    glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Rotaciona para alinhar com a face lateral
+    glScalef(profundidadeTeto - espessuraHaste * 2, alturaCabine, 0.01f); // Espessura do vidro
+    glBegin(GL_QUADS);
+        glNormal3f(1.0f, 0.0f, 0.0f); // Normal apontando para a direita
+        glVertex3f(-profundidadeTeto / 2 + espessuraHaste, -alturaCabine / 2, 0.0f);
+        glVertex3f(profundidadeTeto / 2 - espessuraHaste, -alturaCabine / 2, 0.0f);
+        glVertex3f(profundidadeTeto / 2 - espessuraHaste, alturaCabine / 2, 0.0f);
+        glVertex3f(-profundidadeTeto / 2 + espessuraHaste, alturaCabine / 2, 0.0f);
+    glEnd();
+    glPopMatrix();
+
+    // Face Lateral Esquerda (Eixo Z Negativo)
+    glPushMatrix();
+    glTranslatef(-larguraTeto / 2 - 0.01f, 0.0f, 0.0f); // Pequeno deslocamento para evitar z-fighting
+    glRotatef(-90.0f, 0.0f, 1.0f, 0.0f); // Rotaciona para alinhar com a face lateral
+    glScalef(profundidadeTeto - espessuraHaste * 2, alturaCabine, 0.01f); // Espessura do vidro
+    glBegin(GL_QUADS);
+        glNormal3f(-1.0f, 0.0f, 0.0f); // Normal apontando para a esquerda
+        glVertex3f(-profundidadeTeto / 2 + espessuraHaste, -alturaCabine / 2, 0.0f);
+        glVertex3f(profundidadeTeto / 2 - espessuraHaste, -alturaCabine / 2, 0.0f);
+        glVertex3f(profundidadeTeto / 2 - espessuraHaste, alturaCabine / 2, 0.0f);
+        glVertex3f(-profundidadeTeto / 2 + espessuraHaste, alturaCabine / 2, 0.0f);
+    glEnd();
+    glPopMatrix();
+
+    // Opcional: Desabilitar Blending se não for mais necessário
+    glDisable(GL_BLEND);
 }
+
 
 float anguloBraco = 300.0f; // Ângulo de rotação do braço
 float anguloPá = 90.0f;    // Ângulo de rotação da pá
@@ -716,8 +794,6 @@ void desenhaBracoDuplo()
     glRotatef(anguloBraco, 0.0f, 0.0f, 1.0f); // Mesma rotação dos braços
     glTranslatef(0.0f, -alturaBraco, 0.0f);   // Ajusta a pá para a ponta dos braços
     glRotatef(anguloPá, 0.0f, 0.0f, 1.0f);     // Rotação da pá
-    GLuint texturaCorpoTrator;
-    carregarTextura("images/texturaTrator.jpg", texturaCorpoTrator);
     desenhaPá(texturaCorpoTrator);
     glPopMatrix();
 }
@@ -994,9 +1070,7 @@ void desenhaBracoTraseiro()
     glPushMatrix();
     glTranslatef(0.3f, -alturaAntebraco / 2, 0.0f); // Conecta a pá ao final do antebraço
     glRotatef(anguloPaTraseira, 0.0f, 0.0f, 1.0f);  // Rotação da pá traseira
-    GLuint texturaPaTraseira;
-    carregarTextura("images/texturaTrator.jpg", texturaPaTraseira);
-    desenhaPáTraseira(texturaPaTraseira);        
+    desenhaPáTraseira(texturaCorpoTrator);        
     glPopMatrix();
 
     glPopMatrix(); // Final do antebraço
@@ -1013,8 +1087,6 @@ void desenhaTrator()
     // Desenhar o corpo do trator
     glColor3f(0.968f, 0.58f, 0.11f); // Amarelo alaranjado
     
-    GLuint texturaCorpoTrator;
-    carregarTextura("images/texturaTrator.jpg", texturaCorpoTrator);
     desenhaCorpoTrator(texturaCorpoTrator);
 
     // Desenhar a cabine do motorista
