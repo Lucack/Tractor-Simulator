@@ -210,7 +210,7 @@ void configurarIluminacaoSetas()
 
 void atualizarIluminacaoSetas()
 {
-    GLfloat direcaoLuz[] = {0.0f, 0.0f, 1.0f}; // Direção fixa para iluminação uniforme
+    GLfloat direcaoLuz[] = {1.0f, 0.0f, 0.0f}; // Direção fixa para iluminação uniforme
 
     if (setaEsquerdaLigada && setaVisivel)
     {
@@ -233,7 +233,7 @@ void atualizarIluminacaoSetas()
     }
 }
 
-
+// Funçao de textura de areia pelo GPT
 void createSandTexture(int width, int height, unsigned char* data) {
     srand(time(NULL));
     for (int y = 0; y < height; y++) {
@@ -663,7 +663,7 @@ void desenhaCabine(GLuint texturaID)
     glPushMatrix();
     glTranslatef(larguraTeto / 2 + 0.01f, 0.0f, 0.0f); // Pequeno deslocamento para evitar z-fighting
     glRotatef(90.0f, 0.0f, 1.0f, 0.0f); // Rotaciona para alinhar com a face lateral
-    glScalef(profundidadeTeto - espessuraHaste * 2, alturaCabine, 0.01f); // Espessura do vidro
+    glScalef(profundidadeTeto - espessuraHaste, alturaCabine, 0.01f); // Espessura do vidro
     glBegin(GL_QUADS);
         glNormal3f(1.0f, 0.0f, 0.0f); // Normal apontando para a direita
         glVertex3f(-profundidadeTeto / 2 + espessuraHaste, -alturaCabine / 2, 0.0f);
@@ -677,7 +677,7 @@ void desenhaCabine(GLuint texturaID)
     glPushMatrix();
     glTranslatef(-larguraTeto / 2 - 0.01f, 0.0f, 0.0f); // Pequeno deslocamento para evitar z-fighting
     glRotatef(-90.0f, 0.0f, 1.0f, 0.0f); // Rotaciona para alinhar com a face lateral
-    glScalef(profundidadeTeto - espessuraHaste * 2, alturaCabine, 0.01f); // Espessura do vidro
+    glScalef(profundidadeTeto - espessuraHaste, alturaCabine, 0.01f); // Espessura do vidro
     glBegin(GL_QUADS);
         glNormal3f(-1.0f, 0.0f, 0.0f); // Normal apontando para a esquerda
         glVertex3f(-profundidadeTeto / 2 + espessuraHaste, -alturaCabine / 2, 0.0f);
@@ -1097,17 +1097,21 @@ void desenhaTrator()
     
     desenhaCorpoTrator(texturaCorpoTrator);
 
+    // Desenhar o braço frontal da retroescavadeira
+    desenhaBracoDuplo();
+
+    // Desenhar o braço traseiro da retroescavadeira
+    desenhaBracoTraseiro();
+
+
+
     // Desenhar a cabine do motorista
     glPushMatrix();
     glTranslatef(0.5f, 1.0f, 0.0f); // Posição da cabine deslocada
     desenhaCabine(texturaCorpoTrator);
     glPopMatrix();
 
-    // Desenhar o braço frontal da retroescavadeira
-    desenhaBracoDuplo();
-
-    // Desenhar o braço traseiro da retroescavadeira
-    desenhaBracoTraseiro();
+    
 
     // Configuração das rodas
     float raioRodasTraseiras = 0.8f;       // Raio das rodas traseiras (maiores)

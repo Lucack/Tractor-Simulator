@@ -2,6 +2,13 @@
 
 Welcome to the **Tractor Simulator**, an interactive OpenGL-based simulation that allows you to control and explore a detailed 3D tractor model. Navigate through different camera perspectives, manipulate the tractor's arms and bucket, and observe realistic lighting and movement dynamics.
 
+### Result
+<div style="text-align: center;">
+  <a href="https://www.youtube.com/watch?v=FQPsSCuzrwA">
+    <img src="https://img.youtube.com/vi/FQPsSCuzrwA/0.jpg" alt="Tractor Simulator">
+  </a>
+</div>
+
 ## Table of Contents
 
 - [Features](#features)
